@@ -1,5 +1,5 @@
 # Build stage
-FROM entando/eap-nodejs-openshift:12
+FROM ubi8/nodejs-18-minimal
 
 WORKDIR /app
 
