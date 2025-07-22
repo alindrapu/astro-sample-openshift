@@ -1,5 +1,5 @@
 # Build stage
-FROM ubi8/nodejs-18-minimal
+FROM ubi8/nodejs-18-minimal AS build
 
 WORKDIR /app
 
@@ -16,19 +16,18 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM registry.access.redhat.com/ubi8/nginx-120
 
 # Copy built assets from the build stage
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist /opt/app-root/src
 
 # Copy custom nginx config for OpenShift
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Set permissions for OpenShift
-RUN chmod -R 777 /var/log/nginx /var/lib/nginx/ /usr/share/nginx/html
+# Set permissions for OpenShift (UBI images already have correct permissions set)
 
 # Expose port 8080 (OpenShift expects non-root processes to use ports > 1024)
 EXPOSE 8080
 
-# Use the default nginx command from the base image
+# Use the UBI nginx startup command
 CMD ["nginx", "-g", "daemon off;"]
