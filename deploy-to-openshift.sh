@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Script to deploy the Astro application to OpenShift
+# This script deploys an Astro.js application using Red Hat UBI images for OpenShift 4.19 compatibility
 
 # Exit on error
 set -e
@@ -29,7 +30,7 @@ oc project $NAMESPACE
 # Create a new build if it doesn't exist
 if ! oc get buildconfig $APP_NAME &>/dev/null; then
   echo "Creating new build configuration..."
-  oc new-build --name=$APP_NAME --binary=true
+  oc new-build --name=$APP_NAME --binary=true --strategy=docker
 fi
 
 # Start the build
@@ -47,5 +48,11 @@ oc rollout status deployment/$APP_NAME
 # Get the route URL
 ROUTE_URL=$(oc get route $APP_NAME -o jsonpath='{.spec.host}')
 
-echo "\nDeployment complete!"
+echo ""
+echo "Deployment complete!"
 echo "Your application is available at: http://$ROUTE_URL"
+
+echo ""
+echo "Note: This deployment uses Red Hat UBI images which are optimized for OpenShift."
+echo "If you encounter any issues, please check the pod logs with:"
+echo "  oc logs -f deployment/$APP_NAME"

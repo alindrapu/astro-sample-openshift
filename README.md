@@ -1,6 +1,6 @@
 # Astro Sample for OpenShift
 
-This is a sample Astro.js application configured for deployment on OpenShift 4.19.
+This is a sample Astro.js application configured for deployment on OpenShift 4.19. It uses Red Hat Universal Base Images (UBI) for better compatibility with OpenShift.
 
 ## Project Structure
 
@@ -75,6 +75,16 @@ oc get route astro-sample
 ## Configuration
 
 The application is configured to run on port 8080 as required by OpenShift for non-root users. The Nginx configuration in `nginx.conf` handles serving the static files built by Astro.
+
+### OpenShift Security Considerations
+
+This deployment includes:
+
+- Red Hat UBI base images for both build and runtime
+- Proper security context settings to run as non-root
+- Health checks (readiness and liveness probes)
+- Dropped unnecessary capabilities
+- Resource limits and requests
 
 ## Resources
 

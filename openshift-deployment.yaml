@@ -19,6 +19,7 @@ spec:
         image: astro-sample:latest
         ports:
         - containerPort: 8080
+          name: http
         resources:
           limits:
             cpu: "500m"
@@ -26,6 +27,24 @@ spec:
           requests:
             cpu: "200m"
             memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+      securityContext:
+        runAsNonRoot: true
 ---
 apiVersion: v1
 kind: Service

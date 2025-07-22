@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine as build
+FROM registry.access.redhat.com/ubi8/nodejs-16:latest as build
 
 WORKDIR /app
 
@@ -16,16 +16,19 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM registry.access.redhat.com/ubi8/nginx-120:latest
 
 # Copy built assets from the build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy custom nginx config for OpenShift
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Set permissions for OpenShift
+RUN chmod -R 777 /var/log/nginx /var/lib/nginx/ /usr/share/nginx/html
 
 # Expose port 8080 (OpenShift expects non-root processes to use ports > 1024)
 EXPOSE 8080
 
-# Run nginx in foreground
+# Use the default nginx command from the base image
 CMD ["nginx", "-g", "daemon off;"]
