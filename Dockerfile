@@ -3,19 +3,15 @@ FROM ubi8/nodejs-18-minimal AS build
 
 WORKDIR /app
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Copy package.json and package-lock.json/yarn.lock/bun.lock
 COPY package.json bun.lock* ./
 
-# Create node_modules directory with proper permissions and install dependencies
-RUN mkdir -p /app/node_modules && \
-    chown -R 1001:0 /app && \
-    chmod -R g+rwX /app && \
-    npm install
+RUN npm ci --only=production
 
-# Copy the rest of the application
 COPY . .
 
-# Build the application
 RUN npm run build
 
 # Production stage
