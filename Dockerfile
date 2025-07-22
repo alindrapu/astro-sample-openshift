@@ -1,5 +1,5 @@
 # Build stage
-FROM registry.access.redhat.com/ubi8/nodejs-16:latest as build
+FROM entando/eap-nodejs-openshift:12
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM registry.access.redhat.com/ubi8/nginx-120:latest
+FROM nginx:alpine
 
 # Copy built assets from the build stage
 COPY --from=build /app/dist /usr/share/nginx/html
