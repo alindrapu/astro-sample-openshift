@@ -6,8 +6,11 @@ WORKDIR /app
 # Copy package.json and package-lock.json/yarn.lock/bun.lock
 COPY package.json bun.lock* ./
 
-# Install dependencies
-RUN npm install
+# Create node_modules directory with proper permissions and install dependencies
+RUN mkdir -p /app/node_modules && \
+    chown -R 1001:0 /app && \
+    chmod -R g+rwX /app && \
+    npm install
 
 # Copy the rest of the application
 COPY . .
@@ -24,7 +27,8 @@ COPY --from=build /app/dist /opt/app-root/src
 # Copy custom nginx config for OpenShift
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Set permissions for OpenShift (UBI images already have correct permissions set)
+# Set permissions for OpenShift
+RUN chmod -R g+rwX /opt/app-root/src
 
 # Expose port 8080 (OpenShift expects non-root processes to use ports > 1024)
 EXPOSE 8080
